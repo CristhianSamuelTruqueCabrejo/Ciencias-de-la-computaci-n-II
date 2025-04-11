@@ -10,7 +10,7 @@ class GrafoVisual:
         """
         self.matriz = np.array(matriz_adyacencia)
         self.num_nodos = len(self.matriz)
-        self.grafo = nx.Graph()  # Grafo no dirigido (para dirigido, usa nx.DiGraph)
+        self.grafo = nx.DiGraph()  # Grafo no dirigido (para dirigido, usa nx.DiGraph)
 
         # Añadir nodos y aristas al grafo de networkx
         for i in range(self.num_nodos):
