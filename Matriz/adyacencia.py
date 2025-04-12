@@ -1,64 +1,59 @@
-import numpy as np
-import networkx as nx
 import matplotlib.pyplot as plt
+import networkx as nx
 
-class GrafoVisual:
-    def __init__(self, matriz_adyacencia):
-        """
-        Inicializa el grafo con una matriz de adyacencia.
-        :param matriz_adyacencia: Matriz cuadrada (lista de listas o numpy array).
-        """
-        self.matriz = np.array(matriz_adyacencia)
-        self.num_nodos = len(self.matriz)
-        self.grafo = nx.DiGraph()  # Grafo no dirigido (para dirigido, usa nx.DiGraph)
+def crear_grafo_desde_matriz(matriz, dirigido=False):
+    """
+    Crea un grafo (dirigido o no dirigido) a partir de una matriz de adyacencia.
+    
+    Parámetros:
+        matriz (list of list): matriz de adyacencia (0s y 1s)
+        dirigido (bool): True para grafo dirigido, False para no dirigido
+        
+    Retorna:
+        G (networkx.Graph o networkx.DiGraph): grafo construido
+    """
+    G = nx.DiGraph() if dirigido else nx.Graph()
+    n = len(matriz)
 
-        # Añadir nodos y aristas al grafo de networkx
-        for i in range(self.num_nodos):
-            self.grafo.add_node(i)
-            for j in range(i, self.num_nodos):  # Evita duplicados en no dirigido
-                if self.matriz[i][j] == 1:
-                    self.grafo.add_edge(i, j)
+    # Añadir nodos
+    for i in range(n):
+        G.add_node(i)
 
-    def dibujar_grafo(self, layout='spring', titulo="Grafo a partir de matriz de adyacencia"):
-        """
-        Dibuja el grafo usando matplotlib.
-        :param layout: 'spring' (default), 'circular', 'random', etc.
-        :param titulo: Título del gráfico.
-        """
-        # Seleccionar disposición de los nodos
-        if layout == 'spring':
-            pos = nx.spring_layout(self.grafo)
-        elif layout == 'circular':
-            pos = nx.circular_layout(self.grafo)
-        else:
-            pos = nx.random_layout(self.grafo)
+    # Añadir aristas
+    for i in range(n):
+        for j in range(n):
+            if matriz[i][j] == 1:
+                G.add_edge(i, j)
 
-        # Dibujar el grafo
-        plt.figure(figsize=(8, 6))
-        nx.draw_networkx(
-            self.grafo,
-            pos,
-            with_labels=True,
-            node_color='skyblue',
-            node_size=800,
-            font_size=12,
-            font_weight='bold',
-            edge_color='gray'
-        )
-        plt.title(titulo)
-        plt.axis('off')
-        plt.show()
+    return G
 
-# --- Ejemplo de uso ---
+def mostrar_grafo(G, titulo="Representación del Grafo"):
+    """
+    Muestra el grafo usando Matplotlib.
+    
+    Parámetros:
+        G (networkx.Graph o networkx.DiGraph): grafo a visualizar
+        titulo (str): título de la visualización
+    """
+    pos = nx.spring_layout(G)
+    dirigido = G.is_directed()
+
+    nx.draw(G, pos, with_labels=True, node_color='lightgreen', edge_color='gray', 
+            node_size=1500, font_size=12, arrows=dirigido, arrowstyle='->', arrowsize=20)
+    
+    plt.title(titulo)
+    plt.show()
+
+# Ejemplo de uso
 if __name__ == "__main__":
-    # Matriz de adyacencia (ejemplo: grafo no dirigido)
-    matriz_ejemplo = [
-        [0, 1, 0, 1],
-        [1, 0, 1, 0],
-        [0, 1, 0, 1],
-        [1, 0, 1, 0]
-    ]
+    matriz_adyacencia = [
+    [0, 1, 0, 0, 1],  # Nodo 0 → Nodo 1 y Nodo 4
+    [0, 0, 1, 0, 0],  # Nodo 1 → Nodo 2
+    [1, 0, 0, 1, 0],  # Nodo 2 → Nodo 0 y Nodo 3
+    [0, 0, 0, 0, 1],  # Nodo 3 → Nodo 4
+    [0, 0, 0, 0, 0]   # Nodo 4 → sin salidas
+]
 
-    # Crear y dibujar el grafo
-    grafo_visual = GrafoVisual(matriz_ejemplo)
-    grafo_visual.dibujar_grafo(layout='circular', titulo="Grafo de ejemplo (no dirigido)")
+    es_dirigido = True  # Cambia a False si quieres grafo no dirigido
+    grafo = crear_grafo_desde_matriz(matriz_adyacencia, dirigido=es_dirigido)
+    mostrar_grafo(grafo, titulo="Grafo Dirigido" if es_dirigido else "Grafo No Dirigido")
